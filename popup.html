@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+        <style>
+            body{
+                font-family: 'Roboto', sans-serif;
+                width:300px;
+                height:290px;
+                background-color: #F5F5F5;
+                color:#555;
+            }
+
+            #app-container{
+                width:90%;
+                margin:7% 5%;
+                position: relative;
+                height: 100%;
+            }
+
+            #settings{
+                background: #F5F5F5;
+                width:100%;
+                border-bottom:1px solid #D1D1D1;
+            }
+
+            #settings > .img-type {
+                display: flex;
+                flex-wrap:wrap;
+                margin-bottom: 21px;
+            }
+
+            #settings > .img-type > div {
+                width:50%;
+                box-sizing: border-box;
+                background-color: #fff;
+                border:1px solid #D1D1D1;
+                display: inline-block;
+                text-align: center;
+                padding:0.3em;
+                cursor:pointer;
+            }
+
+            #settings > .img-type > #png {
+                border-right:0px;
+                border-top-left-radius: 3px;
+                border-bottom-left-radius: 3px;
+            }
+
+            #settings > .img-type > #jpeg {
+                border-left:0px;
+                border-top-right-radius: 3px;
+                border-bottom-right-radius: 3px;
+            }
+
+            #settings > .img-type > #png.active, #settings > .img-type > #jpeg.active {
+                border:1px solid #2382e5 !important;
+                background-color: #2196f3;
+                color:#fff;
+            }
+
+            #settings > .quality {
+                box-sizing: border-box;
+                transition: height 0.2s, padding-bottom 0.2s;
+                transition-timing-function: cubic-bezier(0, 0, 0.58, 1);
+                overflow: hidden;
+            }
+
+            #settings.png > .quality{
+                height:0px;
+                padding-bottom: 0px;
+            }
+
+            #settings.jpeg > .quality{
+                height:46px;
+                padding-bottom: 21px;
+            }
+
+            #quality-val {
+                padding: 0.37em;
+                border-radius: 3px;
+                border: 1px solid #D1D1D1;
+                margin-right: 8px;
+                outline: none;
+            }
+
+            #svg-list {
+                height:183px;
+                width:106%;
+                overflow-y: scroll;
+                transition: height 0.2s;
+                transition-timing-function: cubic-bezier(0, 0, 0.58, 1);
+            }
+
+            #settings.jpeg + #svg-list{
+                height:137px;
+            }
+
+            #svg-list > div {
+                width:100%;
+                position: relative;
+                height: 48px;
+                padding: 2px 0px;
+            }
+
+            #svg-list .img-container {
+                width:48px;
+                height:48px;
+                position: relative;
+                display: inline-block;
+            }
+
+            #svg-list .img-container > img {
+                max-width:100%;
+                max-height:100%;
+                position: absolute;
+                margin:auto;
+                top:0;
+                right:0;
+                bottom:0;
+                left:0;
+            }
+
+            #svg-list > div > p {
+                display: inline-block;
+                vertical-align: top;
+                margin: 16px 8px;
+            }
+
+            #svg-list > div .download-link{
+                vertical-align: top;
+                display: inline-block;
+                height: 24px;
+                width: 24px;
+                top: 12px;
+                right: 38px;
+                position: absolute;
+            }
+
+            #svg-list > div .download-link path.icon{
+                fill:#898989;
+            }
+
+            #svg-list > div .download-link:hover path.icon{
+                fill:#2196f3;
+            }
+
+            #svg-list > div .download-link:active path.icon{
+                fill:#307DEF
+            }
+
+            #svg-list > div input[type="checkbox"]{
+                display: none;
+            }
+
+            #svg-list > div input[type="checkbox"]+label{
+                box-sizing: border-box;
+                width:18px;
+                height:18px;
+                display: inline-block;
+                background-color: #fff;
+                border:1px solid #D1D1D1;
+                border-radius: 2px;
+                cursor: pointer;
+                transition: background-color 0.2s, border 0.2s;
+                transition-timing-function: cubic-bezier(0, 0, 0.58, 1);
+                position: absolute;
+                right: 17px;
+                top:15px;
+            }
+
+            #svg-list > div input[type="checkbox"]+label:hover{
+                border-color:#2196f3;
+            }
+
+            #svg-list > div input[type="checkbox"]:checked+label{
+                border:9px solid #2196f3;
+            }
+
+            #svg-list > div input[type="checkbox"]+label>svg{
+                position: absolute;
+                top: -5px;
+                right: -7px;
+                transform: scale(0, 0);
+                opacity: 0;
+                transition: all .2s cubic-bezier(0.155, 1.105, 0.295, 1.12), opacity .2s linear;
+            }
+
+            #svg-list > div input[type="checkbox"]:checked+label>svg{
+                transform: scale(1, 1);
+                opacity: 1;
+            }
+
+            #svg-list + hr {
+                border: 0;
+                color: #D1D1D1;
+                background-color: #D1D1D1;
+                height: 1px;
+                margin: 0;
+            }
+
+            #download{
+                padding: 10px 0px;
+                font-size:14px;
+                margin:0;
+                width:100%;
+                position: absolute;
+                bottom: 0;
+                border-radius:3px;
+                box-sizing: border-box;
+                color:white;
+                background-color: #2196f3;
+                text-align: center;
+                font-weight: 600;
+                cursor:pointer;
+            }
+
+            #download:active{
+                background-color: #2382e5;
+                color:#ECECEC;
+            }
+
+            #svg-list > .null-message{
+                width: 200px;
+                height: 48px;
+                padding-right: 6%;
+                position: absolute;
+                margin: auto;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                font-size: 18px;
+                text-align: center;
+            }
+
+        </style>
+        <script src="popup.js"></script>
+    </head>
+    <body>
+        <div id="app-container">
+            <div id="settings" class="png">
+                <div class="img-type">
+                    <div id="png" class="active">PNG</div>
+                    <div id="jpeg">JPEG</div>
+                </div>
+                <div class="quality">
+                    <input type="number" name="quality-val" id="quality-val" min="1" max="100" value="80"><label for="quality-val">Quality of JPEG</label>
+                </div>
+            </div>
+            <div id="svg-list">
+            </div>
+            <hr/>
+            <div id="download">Export SVGs</div>
+        </div>
+    </body>
+</html>
