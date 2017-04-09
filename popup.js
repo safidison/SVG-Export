@@ -1,16 +1,18 @@
 // This callback function is called when the content script has been
 // injected and returned its results
 
-var svgData,
+var svgData = [],
     imgType = "png",
     jpegQuality = 0.8,
     svgList,
     convertionQueue = [];
 
+//Adds individual SVG element to list
 function addToSVGList(imgData) {
     svgList.insertAdjacentHTML('beforeend', '<div id="'+imgData.id+'"><div class="img-container"><img src="'+imgData.bitmapURL+'" /></div><p>'+imgData.name+'</p><a href="'+imgData.bitmapURL+'" download="'+imgData.name+'" class="download-link"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" class="icon"/><path fill="none" d="M0 0h24v24H0z"/></svg></a><input type="checkbox" name="include-'+imgData.id+'" id="checkbox-'+imgData.id+'" checked="checked"/><label for="checkbox-'+imgData.id+'"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="10" viewBox="0 0 14 10"><path fill="#fff" d="M5 10L0 5.19l1.4-1.34L5 7.31 12.6 0 14 1.35 5 10"/></svg></label></div>');
 }
 
+//Updates individual SVG element on list
 function updateSVGList(imgData) {
     var imageElement = document.getElementById(imgData.id),
         downloadLink = imageElement.querySelectorAll('.download-link')[0];
@@ -21,6 +23,7 @@ function updateSVGList(imgData) {
     downloadLink.download = imgData.name;
 }
 
+//Converts received SVGs to image type that's selected
 function convertSVGToBitmap(callback){
     if(convertionQueue.length === 0){return;}
 
@@ -48,6 +51,7 @@ function convertSVGToBitmap(callback){
     };
 }
 
+//This outputs the displayed SVGs that are received from content.js
 function displayReceviedSVGs(receivedData)  {
     svgData = receivedData.svgData;
 
@@ -62,6 +66,7 @@ function displayReceviedSVGs(receivedData)  {
     convertSVGToBitmap(addToSVGList);
 }
 
+//Handles changing output between JPEG and PNG
 function changeOutputType(event){
     if(event.target.getAttribute("class") === 'active'){return;}
 
@@ -82,6 +87,7 @@ function changeOutputType(event){
     convertSVGToBitmap(updateSVGList);
 }
 
+//Handles changing the quality of the JPEG
 function changeQuality(event){
     if(event.target.value >= 100){
         jpegQuality = 1;
@@ -104,7 +110,6 @@ function downloadSVGs() {
     } else {
         for(var i = 0, len = svgData.length; i < len; i++){
             if(document.getElementById('checkbox-image-'+svgData[i].id).checked){
-                console.log(document.getElementById('image-'+svgData[i].id).querySelectorAll('a.download-link')[0]);
                 document.getElementById('image-'+svgData[i].id).querySelectorAll('a.download-link')[0].click();
             }
         }
@@ -121,6 +126,15 @@ window.addEventListener('load', function(evt) {
     document.getElementById('quality-val').addEventListener('change', changeQuality);
 
     document.getElementById('download').addEventListener('click', downloadSVGs);
+
+    chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tabs) {
+      var currentURL = tabs[0].url;
+      if(currentURL.indexOf('chrome://') !== -1 || currentURL.indexOf('chrome-extension://') !== -1 || currentURL.indexOf('chrome.google.com/webstore') !== -1){
+        svgList.insertAdjacentHTML('beforeend', "<p class='null-message'>Could not find any SVGs on this site</p>");
+      }
+    });
+
+
 
     // Get the event page
     chrome.runtime.getBackgroundPage(function(eventPage) {

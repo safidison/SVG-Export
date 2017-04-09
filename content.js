@@ -38,6 +38,11 @@ function processSVG (element, elementOuterHTML){
         imageHeight = element.clientHeight;
     }
 
+    //Check for xmlns
+    if(elementOuterHTML.indexOf('xmlns') === -1){
+      elementOuterHTML = elementOuterHTML.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ');
+    }
+
     return {
         title: imageTitle,
         width: imageWidth,
