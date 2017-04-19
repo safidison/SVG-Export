@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "SVG Export",
     "description": "Download SVGs from websites as PNGs or JPEGs",
-    "version": "1.0",
+    "version": "1.0.1",
     "background": {
         "scripts": ["event.js"],
         "persistent": false
@@ -18,10 +18,9 @@
            "38": "icons/38x38.png"
         },
         "default_popup": "popup.html",
-        "default_name": "SVG Export"
+        "default_title": "SVG Export"
     },
     "permissions": [
-        "tabs",
-        "<all_urls>"
+        "activeTab"
     ]
 }

@@ -94,28 +94,20 @@ function getSVGs(callback){
     for (var i = 0; i < elements.length; i++) {
         var element = elements[i];
         var elementType = element.localName;
-        var elementOuterHTML = element.outerHTML;
+        var elementOuterHTML = element.outerHTML,
+            svgObject;
         if(elementType === 'svg') {
-            var svgObject = processSVG(element, elementOuterHTML);
-            if(!isDuplicate(svgData, svgObject)){
-                svgData.push(svgObject);
-            } else if(svgObject.title.indexOf('svgexport-') >= 1) {
-                untitledElements--;
-            }
+            svgObject = processSVG(element, elementOuterHTML);
         } else if (elementType === 'img' && elementOuterHTML.match(/src=['"]\S+\.svg['"]/)) {
-            var imgObject = processIMG(element, elementOuterHTML);
-            if(!isDuplicate(svgData, imgObject)){
-                svgData.push(imgObject);
-            } else if(svgObject.title.indexOf('svgexport-') >= 1) {
-                untitledElements--;
-            }
+            svgObject = processIMG(element, elementOuterHTML);
         } else if(elementType === 'object' && elementOuterHTML.match(/data=['"]\S+\.svg['"]/)) {
-            var objectObject = processObject(element, elementOuterHTML);
-            if(!isDuplicate(svgData, objectObject)){
-                svgData.push(objectObject);
-            } else if(svgObject.title.indexOf('svgexport-') >= 1) {
-                untitledElements--;
-            }
+            svgObject = processObject(element, elementOuterHTML);
+        }
+
+        if(!isDuplicate(svgData, svgObject)){
+            svgData.push(svgObject);
+        } else if(svgObject.title.indexOf('svgexport-') >= 1) {
+            untitledElements--;
         }
 
     }

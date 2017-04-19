@@ -134,8 +134,6 @@ window.addEventListener('load', function(evt) {
       }
     });
 
-
-
     // Get the event page
     chrome.runtime.getBackgroundPage(function(eventPage) {
         // Call the getPageInfo function in the event page, passing in
