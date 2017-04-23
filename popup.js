@@ -7,9 +7,33 @@ var svgData = [],
     svgList,
     convertionQueue = [];
 
+
+var _AnalyticsCode = 'UA-38396933-2';
+
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', _AnalyticsCode, 'auto');
+ga('set', 'checkProtocolTask', function(){}); // Removes failing protocol check. @see: http://stackoverflow.com/a/22152353/1958200
+ga('require', 'displayfeatures');
+ga('send', 'pageview', '/popup.html');
+
+function sendDownloadEvent(){
+  ga('send', 'event', 'SVG', 'download', imgType);
+}
+
 //Adds individual SVG element to list
 function addToSVGList(imgData) {
     svgList.insertAdjacentHTML('beforeend', '<div id="'+imgData.id+'"><div class="img-container"><img src="'+imgData.bitmapURL+'" /></div><p>'+imgData.name+'</p><a href="'+imgData.bitmapURL+'" download="'+imgData.name+'" class="download-link"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" class="icon"/><path fill="none" d="M0 0h24v24H0z"/></svg></a><input type="checkbox" name="include-'+imgData.id+'" id="checkbox-'+imgData.id+'" checked="checked"/><label for="checkbox-'+imgData.id+'"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="10" viewBox="0 0 14 10"><path fill="#fff" d="M5 10L0 5.19l1.4-1.34L5 7.31 12.6 0 14 1.35 5 10"/></svg></label></div>');
+
+    if(convertionQueue.length > 0){
+      var downloadLinks = document.getElementsByClassName('download-link');
+      for (var i = 0, len = downloadLinks.length; i < len; i++) {
+        downloadLinks[i].addEventListener('click', sendDownloadEvent);
+      }
+    }
 }
 
 //Updates individual SVG element on list
@@ -106,11 +130,12 @@ function downloadSVGs() {
     if(convertionQueue.length > 0){
         setTimeout(function(){
             downloadSVGs();
-        },100)
+        },100);
     } else {
         for(var i = 0, len = svgData.length; i < len; i++){
             if(document.getElementById('checkbox-image-'+svgData[i].id).checked){
                 document.getElementById('image-'+svgData[i].id).querySelectorAll('a.download-link')[0].click();
+                sendDownloadEvent();
             }
         }
     }
