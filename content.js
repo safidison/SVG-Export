@@ -9,6 +9,13 @@ function isDuplicate(dataArray, dataObject){
     return false;
 }
 
+function b64EncodeUnicode(str) {
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+        function toSolidBytes(match, p1) {
+            return String.fromCharCode('0x' + p1);
+    }));
+}
+
 function processSVG (element, elementOuterHTML){
     var imageTitle,
         titleSearch = elementOuterHTML.match(/<title>([\S]+)<\/title>/),
@@ -47,7 +54,7 @@ function processSVG (element, elementOuterHTML){
         title: imageTitle,
         width: imageWidth,
         height: imageHeight,
-        src: "data:image/svg+xml;base64,"+window.btoa(elementOuterHTML)
+        src: "data:image/svg+xml;base64,"+b64EncodeUnicode(elementOuterHTML)
     }
 
 }
