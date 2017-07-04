@@ -1,6 +1,15 @@
-var untitledElements = 0;
+var untitledElements = 0,
+    svgData = [],
+    elementsLength = 0,
+    currentElement = 0;
 
-function isDuplicate(dataArray, dataObject){
+function sendData() {
+  chrome.runtime.sendMessage({
+      svgData: svgData
+  });
+}
+
+function isDuplicate(dataArray, dataObject) {
     for (var i = 0; i < dataArray.length; i++){
         if(dataArray[i].height === dataObject.height && dataArray[i].width === dataObject.width && dataArray[i].src === dataObject.src){
             return true;
@@ -9,7 +18,20 @@ function isDuplicate(dataArray, dataObject){
     return false;
 }
 
-function processSVG (element, elementOuterHTML){
+function pushIfUnique(svgObject) {
+  if(!isDuplicate(svgData, svgObject)){
+      svgData.push(svgObject);
+  } else if(svgObject.title.indexOf('svgexport-') >= 1) {
+      untitledElements--;
+  }
+
+  if(currentElement >= elementsLength-1){
+    sendData();
+  }
+
+}
+
+function processSVG (element, elementOuterHTML, callback){
     var imageTitle,
         titleSearch = elementOuterHTML.match(/<title>([\S]+)<\/title>/),
         viewBoxSearch = elementOuterHTML.match(/viewBox="[\.0-9]+ [\.0-9]+ ([\.0-9]+) ([\.0-9]+)"/),
@@ -43,16 +65,16 @@ function processSVG (element, elementOuterHTML){
       elementOuterHTML = elementOuterHTML.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ');
     }
 
-    return {
+    callback({
         title: imageTitle,
         width: imageWidth,
         height: imageHeight,
         src: "data:image/svg+xml;base64,"+window.btoa(elementOuterHTML)
-    }
+    });
 
 }
 
-function processImg (element, elementOuterHTML){
+function processImg (element, elementOuterHTML, callback){
     var imageTitle,
         titleSearch = elementOuterHTML.match(/alt=['"]([\S]+)['"]/),
         imageWidth = (element.naturalWidth > 0) ? element.naturalWidth : element.clientWidth;
@@ -66,56 +88,45 @@ function processImg (element, elementOuterHTML){
         untitledElements++;
     }
 
-    return {
+    callback({
         title: imageTitle,
         width: imageWidth,
         height: imageHeight,
         src: element.src
-    };
+    });
 }
 
-function processObject (element, elementOuterHTML){
+function processObject (element, elementOuterHTML, callback){
     var imageTitle = imageTitle = 'svgexport-'+untitledElements,
         imageWidth = element.clientWidth;
         imageHeight = element.clientHeight;
 
-    return {
+    callback({
         title: imageTitle,
         width: imageWidth,
         height: imageHeight,
         src: element.data
-    };
-}
-
-function getSVGs(callback){
-    var elements = document.querySelectorAll('svg, img, object'),
-        svgData = [];
-
-    for (var i = 0; i < elements.length; i++) {
-        var element = elements[i];
-        var elementType = element.localName;
-        var elementOuterHTML = element.outerHTML,
-            svgObject;
-        if(elementType === 'svg') {
-            svgObject = processSVG(element, elementOuterHTML);
-        } else if (elementType === 'img' && elementOuterHTML.match(/src=['"]\S+\.svg['"]/)) {
-            svgObject = processIMG(element, elementOuterHTML);
-        } else if(elementType === 'object' && elementOuterHTML.match(/data=['"]\S+\.svg['"]/)) {
-            svgObject = processObject(element, elementOuterHTML);
-        }
-
-        if(!isDuplicate(svgData, svgObject)){
-            svgData.push(svgObject);
-        } else if(svgObject.title.indexOf('svgexport-') >= 1) {
-            untitledElements--;
-        }
-
-    }
-    callback(svgData);
-}
-
-getSVGs(function (data){
-    chrome.runtime.sendMessage({
-        svgData: data
     });
-});
+}
+
+(function (){
+    var elements = document.querySelectorAll('svg, img, object');
+        elementsLength = elements.length;
+
+    for (currentElement = 0; currentElement < elementsLength; currentElement++) {
+
+        var element = elements[currentElement];
+        var elementType = element.localName;
+        var elementOuterHTML = element.outerHTML;
+
+        if(elementType === 'svg') {
+            processSVG(element, elementOuterHTML, pushIfUnique);
+        } else if (elementType === 'img' && elementOuterHTML.match(/src=['"]\S+\.svg['"]/)) {
+            processIMG(element, elementOuterHTML, pushIfUnique);
+        } else if(elementType === 'object' && elementOuterHTML.match(/data=['"]\S+\.svg['"]/)) {
+            processObject(element, elementOuterHTML, pushIfUnique);
+        } else if(currentElement === elementsLength-1) {
+          sendData();
+        }
+    }
+})();
