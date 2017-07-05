@@ -24,73 +24,95 @@ function sendDownloadEvent(){
   ga('send', 'event', 'SVG', 'download', imgType);
 }
 
-//Adds individual SVG element to list
-function addToSVGList(imgData) {
-    svgList.insertAdjacentHTML('beforeend', '<div id="'+imgData.id+'"><div class="img-container"><img src="'+imgData.bitmapURL+'" /></div><p>'+imgData.name+'</p><a href="'+imgData.bitmapURL+'" download="'+imgData.name+'" class="download-link"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" class="icon"/><path fill="none" d="M0 0h24v24H0z"/></svg></a><input type="checkbox" name="include-'+imgData.id+'" id="checkbox-'+imgData.id+'" checked="checked"/><label for="checkbox-'+imgData.id+'"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="10" viewBox="0 0 14 10"><path fill="#fff" d="M5 10L0 5.19l1.4-1.34L5 7.31 12.6 0 14 1.35 5 10"/></svg></label></div>');
+//Updates individual SVG element on list
+function generateSVGList(action, imgData) {
+    var iconImage = (imgType === "jpeg") ? imgData.jpegURL : imgData.pngURL,
+        imageName = (imgType === "png" || imgType === "svg") ? imgData.title+'.'+imgType : imgData.title+'.jpg',
+        hrefVal;
 
-    if(convertionQueue.length > 0){
-      var downloadLinks = document.getElementsByClassName('download-link');
-      for (var i = 0, len = downloadLinks.length; i < len; i++) {
-        downloadLinks[i].addEventListener('click', sendDownloadEvent);
+    switch (imgType) {
+      case "png":
+        hrefVal = imgData.pngURL;
+      break;
+      case "jpeg":
+        hrefVal = imgData.jpegURL;
+      break;
+      default:
+        hrefVal = imgData.src;
+    }
+
+    if(action === "add") {
+      svgList.insertAdjacentHTML('beforeend', '<div id="'+imgData.id+'"><div class="img-container"><img src="'+iconImage+'" /></div><p>'+imageName+'</p><a href="'+hrefVal+'" download="'+imageName+'" class="download-link"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" class="icon"/><path fill="none" d="M0 0h24v24H0z"/></svg></a><input type="checkbox" name="include-'+imgData.id+'" id="checkbox-'+imgData.id+'" checked="checked"/><label for="checkbox-'+imgData.id+'"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="10" viewBox="0 0 14 10"><path fill="#fff" d="M5 10L0 5.19l1.4-1.34L5 7.31 12.6 0 14 1.35 5 10"/></svg></label></div>');
+
+      if(convertionQueue.length > 0){
+        var downloadLinks = document.getElementsByClassName('download-link');
+        for (var i = 0, len = downloadLinks.length; i < len; i++) {
+          downloadLinks[i].addEventListener('click', sendDownloadEvent);
+        }
       }
+    } else if(action === "update") {
+      var imageElement = document.getElementById(imgData.id),
+          downloadLink = imageElement.querySelectorAll('.download-link')[0];
+
+      imageElement.querySelectorAll('.img-container > img')[0].src = iconImage;
+      imageElement.querySelectorAll('.img-container + p')[0].innerText = imageName;
+      downloadLink.href = hrefVal;
+      downloadLink.download = imageName;
     }
 }
 
-//Updates individual SVG element on list
-function updateSVGList(imgData) {
-    var imageElement = document.getElementById(imgData.id),
-        downloadLink = imageElement.querySelectorAll('.download-link')[0];
+function generateSVGData(callbackAction, callback){
+  if(convertionQueue.length === 0){return;}
 
-    imageElement.querySelectorAll('.img-container > img')[0].src = imgData.bitmapURL;
-    imageElement.querySelectorAll('.img-container + p')[0].innerText = imgData.name;
-    downloadLink.href = imgData.bitmapURL;
-    downloadLink.download = imgData.name;
-}
+  var currentData = convertionQueue[0];
+      canvas = document.createElement('canvas');
 
-//Converts received SVGs to image type that's selected
-function convertSVGToBitmap(callback){
-    if(convertionQueue.length === 0){return;}
+      canvas.width = currentData.width;
+      canvas.height = currentData.height;
 
-    var currentData = convertionQueue[0];
-        canvas = document.createElement('canvas');
+      var context = canvas.getContext("2d");
 
-    canvas.width = currentData.width;
-    canvas.height = currentData.height;
-
-    var context = canvas.getContext("2d");
-
-    var image = new Image;
-    image.src = currentData.src;
-    image.onload = function() {
+      var image = new Image;
+      image.src = currentData.src;
+      image.onload = function() {
         context.drawImage(image, 0, 0);
         convertionQueue.shift();
 
-        callback({
-            id: 'image-'+currentData.id,
-            bitmapURL: (imgType === "png") ? canvas.toDataURL('image/png') : canvas.toDataURL('image/jpeg', jpegQuality),
-            name: (imgType === "png") ? currentData.title+'.png' : currentData.title+'.jpg'
-        });
+        var convertedData = {
+          id: currentData.id,
+          title: currentData.title,
+          width: currentData.width,
+          height: currentData.height,
+          pngURL: canvas.toDataURL('image/png'),
+          jpegURL: canvas.toDataURL('image/jpeg', jpegQuality),
+          src: currentData.src
+        };
 
-        if(convertionQueue.length > 0){convertSVGToBitmap(callback);}
-    };
+        svgData.push(convertedData);
+
+        callback(callbackAction, convertedData);
+
+        if(convertionQueue.length > 0){generateSVGData(callbackAction, callback);}
+     };
 }
 
 //This outputs the displayed SVGs that are received from content.js
 function displayReceviedSVGs(receivedData)  {
-    svgData = receivedData.svgData;
+    originalSVGData = receivedData.svgData;
 
-    if(svgData.length === 0){
+    if(originalSVGData.length === 0){
         svgList.insertAdjacentHTML('beforeend', "<p class='null-message'>Could not find any SVGs on this site</p>");
     }
 
-    for(var i = 0, len = svgData.length; i < len; i++){
-        svgData[i].id = i;
+    for(var i = 0, len = originalSVGData.length; i < len; i++){
+        originalSVGData[i].id = i;
     }
-    convertionQueue = svgData.slice();
-    convertSVGToBitmap(addToSVGList);
+
+    convertionQueue = originalSVGData.slice();
+    generateSVGData("add", generateSVGList);
 }
 
-//Handles changing output between JPEG and PNG
+//Handles changing output between PNG, JPEG and SVG
 function changeOutputType(event){
     if(event.target.getAttribute("class") === 'active'){return;}
 
@@ -100,15 +122,21 @@ function changeOutputType(event){
 
     if(event.target.id === 'png'){
         document.getElementById('jpeg').setAttribute('class', '');
+        document.getElementById('svg').setAttribute('class', '');
         settingsElement.setAttribute('class', 'png');
     } else if(event.target.id === 'jpeg'){
         document.getElementById('png').setAttribute('class', '');
+        document.getElementById('svg').setAttribute('class', '');
         settingsElement.setAttribute('class', 'jpeg');
+    } else if(event.target.id === 'svg'){
+        document.getElementById('png').setAttribute('class', '');
+        document.getElementById('jpeg').setAttribute('class', '');
+        settingsElement.setAttribute('class', 'svg');
     }
 
-    convertionQueue.length = 0;
-    convertionQueue = svgData.slice();
-    convertSVGToBitmap(updateSVGList);
+    for(var i = 0, len = svgData.length; i < len; i++){
+        generateSVGList("update", svgData[i]);
+    }
 }
 
 //Handles changing the quality of the JPEG
@@ -120,9 +148,11 @@ function changeQuality(event){
     } else {
         jpegQuality = event.target.value/100;
     }
+
     convertionQueue.length = 0;
     convertionQueue = svgData.slice();
-    convertSVGToBitmap(updateSVGList);
+    svgData.length = 0;
+    generateSVGData("update", generateSVGList);
 }
 
 //For downloading all SVGs that are checked
@@ -148,6 +178,7 @@ window.addEventListener('load', function(evt) {
 
     document.getElementById('png').addEventListener('click', changeOutputType);
     document.getElementById('jpeg').addEventListener('click', changeOutputType);
+    document.getElementById('svg').addEventListener('click', changeOutputType);
     document.getElementById('quality-val').addEventListener('change', changeQuality);
 
     document.getElementById('download').addEventListener('click', downloadSVGs);

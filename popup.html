@@ -31,7 +31,7 @@
             }
 
             #settings > .img-type > div {
-                width:50%;
+                width:33.333%;
                 box-sizing: border-box;
                 background-color: #fff;
                 border:1px solid #D1D1D1;
@@ -48,15 +48,25 @@
             }
 
             #settings > .img-type > #jpeg {
+                border-left:1px solid #D1D1D1;
+                border-right:0px;
+            }
+
+            #settings > .img-type > #svg {
                 border-left:0px;
                 border-top-right-radius: 3px;
                 border-bottom-right-radius: 3px;
             }
 
-            #settings > .img-type > #png.active, #settings > .img-type > #jpeg.active {
+            #settings > .img-type > #png.active, #settings > .img-type > #jpeg.active, #settings > .img-type > #svg.active {
                 border:1px solid #372e90 !important;
                 background-color: #453ab4;
                 color:#fff;
+            }
+
+            #settings > .img-type > #png.active + div {
+              border-left: 0px;
+              border-right:1px solid #D1D1D1;
             }
 
             #settings > .quality {
@@ -66,7 +76,7 @@
                 overflow: hidden;
             }
 
-            #settings.png > .quality{
+            #settings.png > .quality, #settings.svg > .quality{
                 height:0px;
                 padding-bottom: 0px;
             }
@@ -242,6 +252,7 @@
                 <div class="img-type">
                     <div id="png" class="active">PNG</div>
                     <div id="jpeg">JPEG</div>
+                    <div id="svg">SVG</div>
                 </div>
                 <div class="quality">
                     <input type="number" name="quality-val" id="quality-val" min="1" max="100" value="80"><label for="quality-val">Quality of JPEG</label>

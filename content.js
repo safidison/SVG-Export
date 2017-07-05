@@ -28,7 +28,7 @@ function b64EncodeUnicode(str) {
 function pushIfUnique(svgObject) {
   if(!isDuplicate(svgData, svgObject)){
       svgData.push(svgObject);
-  } else if(svgObject.title.indexOf('svgexport-') >= 1) {
+  } else if(svgObject.title.indexOf('svgexport-') === 0) {
       untitledElements--;
   }
 
@@ -56,12 +56,12 @@ function processSVG (element, elementOuterHTML, callback){
     }
 
     // Search for dimentions in SVG element
-    if(viewBoxSearch){
-        imageWidth = viewBoxSearch[1];
-        imageHeight = viewBoxSearch[2];
-    } else if(widthSearch && heightSearch){
+    if(widthSearch && heightSearch){
         imageWidth = elementOuterHTML.match(/width="([\.0-9]+)"/)[1];
         imageHeight = elementOuterHTML.match(/height="([\.0-9]+)"/)[1];
+    } else if(viewBoxSearch){
+        imageWidth = viewBoxSearch[1];
+        imageHeight = viewBoxSearch[2];
     } else {
         imageWidth = element.clientWidth;
         imageHeight = element.clientHeight;
@@ -129,7 +129,7 @@ function processObject (element, elementOuterHTML, callback){
         if(elementType === 'svg') {
             processSVG(element, elementOuterHTML, pushIfUnique);
         } else if (elementType === 'img' && elementOuterHTML.match(/src=['"]\S+\.svg['"]/)) {
-            processIMG(element, elementOuterHTML, pushIfUnique);
+            processImg(element, elementOuterHTML, pushIfUnique);
         } else if(elementType === 'object' && elementOuterHTML.match(/data=['"]\S+\.svg['"]/)) {
             processObject(element, elementOuterHTML, pushIfUnique);
         } else if(currentElement === elementsLength-1) {

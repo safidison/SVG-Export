@@ -1,7 +1,7 @@
 {
     "name": "SVG Export",
     "description": "Download SVGs from websites as PNGs or JPEGs",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "background": {
         "scripts": ["event.js"],
         "persistent": false
