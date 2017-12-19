@@ -2,7 +2,7 @@
 // injected and returned its results
 
 var svgData = [],
-    imgType = "png",
+    imgType = "svg",
     jpegQuality = 0.8,
     svgList,
     convertionQueue = [];
@@ -42,7 +42,7 @@ function generateSVGList(action, imgData) {
     }
 
     if(action === "add") {
-      svgList.insertAdjacentHTML('beforeend', '<div id="image-'+imgData.id+'"><div class="img-container"><img src="'+iconImage+'" /></div><p>'+imageName+'</p><a href="'+hrefVal+'" download="'+imageName+'" class="download-link"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" class="icon"/><path fill="none" d="M0 0h24v24H0z"/></svg></a><input type="checkbox" name="include-'+imgData.id+'" id="image-checkbox-'+imgData.id+'" checked="checked"/><label for="checkbox-'+imgData.id+'"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="10" viewBox="0 0 14 10"><path fill="#fff" d="M5 10L0 5.19l1.4-1.34L5 7.31 12.6 0 14 1.35 5 10"/></svg></label></div>');
+      svgList.insertAdjacentHTML('beforeend', '<div id="image-'+imgData.id+'"><div class="img-container"><img src="'+iconImage+'" /></div><p>'+imageName+'</p><a href="'+hrefVal+'" download="'+imageName+'" class="download-link"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" class="icon"/><path fill="none" d="M0 0h24v24H0z"/></svg></a><input type="checkbox" name="include-'+imgData.id+'" id="image-checkbox-'+imgData.id+'" checked="checked"/><label for="image-checkbox-'+imgData.id+'"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="10" viewBox="0 0 14 10"><path fill="#fff" d="M5 10L0 5.19l1.4-1.34L5 7.31 12.6 0 14 1.35 5 10"/></svg></label></div>');
 
       if(convertionQueue.length > 0){
         var downloadLinks = document.getElementsByClassName('download-link');

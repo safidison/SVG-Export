@@ -41,18 +41,18 @@
                 cursor:pointer;
             }
 
-            #settings > .img-type > #png {
+            #settings > .img-type > #svg {
                 border-right:0px;
                 border-top-left-radius: 3px;
                 border-bottom-left-radius: 3px;
             }
 
-            #settings > .img-type > #jpeg {
+            #settings > .img-type > #png {
                 border-left:1px solid #D1D1D1;
                 border-right:0px;
             }
 
-            #settings > .img-type > #svg {
+            #settings > .img-type > #jpeg {
                 border-left:0px;
                 border-top-right-radius: 3px;
                 border-bottom-right-radius: 3px;
@@ -250,9 +250,9 @@
         <div id="app-container">
             <div id="settings" class="png">
                 <div class="img-type">
-                    <div id="png" class="active">PNG</div>
+                    <div id="svg" class="active">SVG</div>
+                    <div id="png">PNG</div>
                     <div id="jpeg">JPEG</div>
-                    <div id="svg">SVG</div>
                 </div>
                 <div class="quality">
                     <input type="number" name="quality-val" id="quality-val" min="1" max="100" value="80"><label for="quality-val">Quality of JPEG</label>
