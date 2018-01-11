@@ -29,7 +29,6 @@ ga('send', 'pageview', '/popup.html');
 
 function sendDownloadEvent() {
     ga('send', 'event', 'SVG', 'download', imgType);
-    console.log('download event');
 }
 
 //Updates individual SVG element on list
@@ -79,8 +78,6 @@ function generateSVGData(callbackAction, callback) {
     canvas.height = currentData.height;
 
     var context = canvas.getContext("2d");
-
-    console.log(currentData.src, currentData.width, currentData.height);
 
     var image = new Image;
     image.src = currentData.src;

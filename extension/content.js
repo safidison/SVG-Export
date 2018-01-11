@@ -205,10 +205,13 @@ function processBg(element, elementBGURL, callback) {
 
     if(elementBGURL.slice(-4) === ".svg" || elementBGURL.indexOf('data:image/svg+xml;base64') === 0) {
         imageObject.src = elementBGURL;
-        callback(imageObject);
-    } else if (elementBGURL.indexOf('data:image/svg+xml;base64') === 0) {
-        //imageObject.src = elementBGURL;
+    } else if (elementBGURL.indexOf('data:image/svg+xml,%3Csvg') === 0) {
+        const stripStart = elementBGURL.substring(19);
+        const decodedSVG = decodeURI(stripStart);
+        imageObject.src = "data:image/svg+xml;base64," + b64EncodeUnicode(decodedSVG);
     }
+
+    callback(imageObject);
 }
 
 (function () {
