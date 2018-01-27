@@ -86,7 +86,6 @@ function swapUse(useNode) {
 }
 
 function inlineCSS(element) {
-    console.log(element.tagName);
     if(element.tagName === undefined || element.closest('mask') || element.closest('defs')) return;
 
     var styleElements = window.getComputedStyle(element);
