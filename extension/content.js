@@ -67,7 +67,7 @@ function swapUse(useNode) {
             linkedNode = document.getElementById(id);
 
         if(useNode.closest("svg") == linkedNode.closest("svg")) return;
-        
+
         var viewBox = linkedNode.getAttribute('viewBox');
         if(viewBox) useNode.closest("svg").setAttribute("viewBox", viewBox);
 
@@ -86,7 +86,8 @@ function swapUse(useNode) {
 }
 
 function inlineCSS(element) {
-    if(element.closest('mask') || element.closest('defs')) return;
+    console.log(element.tagName);
+    if(element.tagName === undefined || element.closest('mask') || element.closest('defs')) return;
 
     var styleElements = window.getComputedStyle(element);
 
